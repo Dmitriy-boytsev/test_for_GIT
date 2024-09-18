@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: todo_project/Dockerfile
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./todo_project:/app
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "1"
+    depends_on:
+      - db
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: fast/Dockerfile
+    command: uvicorn app:app --host 0.0.0.0 --port 8001
+    volumes:
+      - ./fast:/app
+    ports:
+      - "8001:8001"
+
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_HOST: ${DB_HOST}
+      POSTGRES_PORT: ${DB_PORT}
+
+volumes:
+  postgres_data:
