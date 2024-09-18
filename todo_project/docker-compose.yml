@@ -4,10 +4,10 @@ services:
   web:
     build:
       context: .
-      dockerfile: todo_project/Dockerfile
+      dockerfile: Dockerfile
     command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./todo_project:/app
+      - .:/app
     ports:
       - "8000:8000"
     environment:
@@ -15,15 +15,17 @@ services:
     depends_on:
       - db
 
-  fastapi:
+  fast:
     build:
-      context: .
-      dockerfile: fast/Dockerfile
+      context: ./fast
+      dockerfile: Dockerfile
     command: uvicorn app:app --host 0.0.0.0 --port 8001
     volumes:
       - ./fast:/app
     ports:
       - "8001:8001"
+    depends_on:
+      - db
 
   db:
     image: postgres:13
